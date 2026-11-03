@@ -3,8 +3,19 @@ import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/info_badge.dart';
 
-class DetailMenuScreen extends StatelessWidget {
+class DetailMenuScreen extends StatefulWidget {
   const DetailMenuScreen({super.key});
+
+  @override
+  State<DetailMenuScreen> createState() => _DetailMenuScreenState();
+}
+
+class _DetailMenuScreenState extends State<DetailMenuScreen> {
+  // 2. Deklarasi state di kelas State
+  bool isFavorite = false;
+  int jumlahPesanan = 1;
+  String catatanPesanan = '';
+  final int hargaSatuan = 85000;
 
   static const String _imageUrl =
       'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1000&q=80';
@@ -21,6 +32,20 @@ class DetailMenuScreen extends StatelessWidget {
         backgroundColor: AppColors.background,
         elevation: 0,
         centerTitle: false,
+        // 3. Fitur Favorit di AppBar
+        actions: [
+          IconButton(
+            icon: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: isFavorite ? Colors.red : AppColors.textSecondary,
+            ),
+            onPressed: () {
+              setState(() {
+                isFavorite = !isFavorite;
+              });
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -105,7 +130,54 @@ class DetailMenuScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 20),
+                  // 4. Fitur Jumlah Pesanan (Atur Porsi)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Atur Porsi',
+                        style: AppTextStyles.sectionTitle,
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              if (jumlahPesanan > 1) {
+                                setState(() {
+                                  jumlahPesanan--;
+                                });
+                              }
+                            },
+                            icon: const Icon(
+                              Icons.remove_circle_outline,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          Text(
+                            '$jumlahPesanan',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                jumlahPesanan++;
+                              });
+                            },
+                            icon: const Icon(
+                              Icons.add_circle_outline,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                   const Text(
                     'Deskripsi',
                     style: AppTextStyles.sectionTitle,
@@ -117,16 +189,51 @@ class DetailMenuScreen extends StatelessWidget {
                     'Dipanggang sempurna langsung dari oven kayu tradisional.',
                     style: AppTextStyles.descriptionBody,
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 20),
+                  // 6. Catatan Pesanan
+                  TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        catatanPesanan = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.notes, color: AppColors.primary),
+                      labelText: 'Catatan Pesanan (Opsional)',
+                      labelStyle: const TextStyle(color: AppColors.textSecondary),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                      ),
+                    ),
+                  ),
+                  if (catatanPesanan.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      'Catatan: "$catatanPesanan"',
+                      style: const TextStyle(
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 28),
+                  // 5. Total Harga pada Tombol Pesan
                   SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Pesanan berhasil ditambahkan!'),
-                            duration: Duration(seconds: 2),
+                          SnackBar(
+                            content: Text(
+                              'Pesanan berhasil: $jumlahPesanan porsi (Rp ${hargaSatuan * jumlahPesanan})',
+                            ),
+                            duration: const Duration(seconds: 2),
                           ),
                         );
                       },
@@ -138,8 +245,8 @@ class DetailMenuScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(25.0),
                         ),
                       ),
-                      child: const Text(
-                        'Pesan Sekarang',
+                      child: Text(
+                        'Pesan Sekarang (Rp ${hargaSatuan * jumlahPesanan})',
                         style: AppTextStyles.buttonLabel,
                       ),
                     ),
